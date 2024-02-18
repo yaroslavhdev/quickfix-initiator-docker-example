@@ -16,7 +16,7 @@ def main(config_file):
         acceptor.start()
         application.run()
         acceptor.stop()
-        
+
 
     except (quickfix.ConfigError, quickfix.RuntimeError) as e:
         print(e)

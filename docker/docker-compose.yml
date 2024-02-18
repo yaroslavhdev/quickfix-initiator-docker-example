@@ -19,7 +19,9 @@ services:
       - ${APP_PORT}:${APP_PORT}
     networks:
       - quickfix
-  
+    depends_on:
+      - db_quickfix
+
   initiator:
     build:
       context: ../
@@ -38,9 +40,31 @@ services:
       - acceptor
     networks:
       - quickfix
+    depends_on:
+      - db_quickfix
+      - acceptor
+
+  db_quickfix:
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: user
+      POSTGRES_DB: postgres
+      PG_DATA: /var/lib/postgresql/data
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+      - ../postgres/init_1.sql:/docker-entrypoint-initdb.d/init_1.sql
+      - ../postgres/init_2.sql:/docker-entrypoint-initdb.d/init_2.sql
+    ports:
+      - 5432:5432
+    networks:
+      - quickfix
+
+volumes:
+  dbdata:
+    driver: local
+
 
 networks:
   quickfix:
 
-
-  
