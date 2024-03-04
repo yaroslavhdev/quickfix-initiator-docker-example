@@ -14,7 +14,7 @@ def main():
     """Main"""
     try:
         print("Init>>>>>")
-        settings = quickfix.SessionSettings("client.cfg")
+        settings = quickfix.SessionSettings("client.cfg", True)
         storefactory = quickfix.PostgreSQLStoreFactory(settings)
         logfactory = quickfix.PostgreSQLLogFactory(settings)
         initiator = quickfix.SocketInitiator(fix_app, storefactory, settings, logfactory)

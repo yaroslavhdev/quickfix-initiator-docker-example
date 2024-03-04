@@ -4,7 +4,6 @@
 import threading
 import quickfix as fix
 import quickfix42 as fix42
-import quickfix44 as fix44
 import logging
 from model.logger import setup_logger
 
