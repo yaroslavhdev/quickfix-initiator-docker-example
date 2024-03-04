@@ -9,8 +9,8 @@ def main(config_file):
     try:
         settings = quickfix.SessionSettings(config_file)
         application = Application()
-        storefactory = quickfix.FileStoreFactory(settings)
-        logfactory = quickfix.FileLogFactory(settings)
+        storefactory = quickfix.PostgreSQLStoreFactory(settings)
+        logfactory = quickfix.PostgreSQLLogFactory(settings)
         acceptor = quickfix.SocketAcceptor(application, storefactory, settings, logfactory)
 
         acceptor.start()

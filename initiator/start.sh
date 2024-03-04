@@ -1,4 +1,8 @@
 #!/bin/sh
 cd ./initiator
 sleep 5
-python client.py client.cfg
+which python
+pip list
+ldd /usr/local/lib/libquickfix.so | grep -q libpq
+echo "Start"
+python client.py

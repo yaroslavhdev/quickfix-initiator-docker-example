@@ -5,7 +5,7 @@ services:
     build:
       context: ../
       dockerfile: ./docker/Dockerfile
-    restart: always
+#    restart: always
     working_dir: ${WORKING_DIR}
     volumes:
       - ../:${WORKING_DIR}
@@ -18,7 +18,7 @@ services:
     ports:
       - ${APP_PORT}:${APP_PORT}
     networks:
-      - quickfix
+      - quickfixnet
     depends_on:
       - db_quickfix
 
@@ -26,20 +26,22 @@ services:
     build:
       context: ../
       dockerfile: ./docker/Dockerfile
-    restart: always
+#    restart: always
     working_dir: ${WORKING_DIR}
     volumes:
       - ../:${WORKING_DIR}
     command:
       - ${WORKING_DIR}/initiator/start.sh
-    stdin_open: true
-    tty: true
+#    stdin_open: true
+#    tty: true
+    ports:
+      - 8080:8080
     env_file:
       - .env
     links:
       - acceptor
     networks:
-      - quickfix
+      - quickfixnet
     depends_on:
       - db_quickfix
       - acceptor
@@ -58,7 +60,7 @@ services:
     ports:
       - 5432:5432
     networks:
-      - quickfix
+      - quickfixnet
 
 volumes:
   dbdata:
@@ -66,5 +68,5 @@ volumes:
 
 
 networks:
-  quickfix:
+  quickfixnet:
 

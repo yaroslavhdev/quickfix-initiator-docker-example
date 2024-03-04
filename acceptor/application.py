@@ -10,7 +10,7 @@ from logger import setup_logger
 __SOH__ = chr(1)
 
 
-setup_logger('logfix', 'Logs/message.log')
+setup_logger('logfix')
 logfix = logging.getLogger('logfix')
 
 class Application(fix.Application):
@@ -18,7 +18,7 @@ class Application(fix.Application):
     sessionID = None
     OrderID = 0
 
-    
+
     def onCreate(self, sessionID):
         """onCreate"""
         return
@@ -57,7 +57,7 @@ class Application(fix.Application):
         logfix.debug("fromApp called R >> " + msg)
         self.onMessage(message, sessionID)
         return
-    
+
 
     def onMessage(self, message, sessionID):
         '''Processing application message'''

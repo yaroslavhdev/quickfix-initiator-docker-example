@@ -2,8 +2,6 @@
 *.cpython-37.pyc
 *.pyc
 *.log
-acceptor/Logs/*
-initiator/Sessions/*
 .body
 .header
 .seqnums

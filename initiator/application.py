@@ -1,26 +1,26 @@
 #!/usr/bin/python
 # -*- coding: utf8 -*-
 """FIX Application"""
-import sys
-# from datetime import datetime
+import threading
 import quickfix as fix
 import quickfix42 as fix42
 import quickfix44 as fix44
-import time
 import logging
 from model.logger import setup_logger
-from model import Field
 
 # configured
 __SOH__ = chr(1)
 
 # Logger
-setup_logger('FIX', 'Logs/message.log')
+setup_logger('FIX')
 logfix = logging.getLogger('FIX')
 
 
 class Application(fix.Application):
     """FIX Application"""
+    def __init__(self):
+        fix.Application.__init__(self)
+        self.response_event = threading.Event()
 
     def onCreate(self, sessionID):
         self.sessionID = sessionID
@@ -28,7 +28,7 @@ class Application(fix.Application):
     def onLogon(self, sessionID):
         self.sessionID = sessionID
         return
-    def onLogout(self, sessionID): 
+    def onLogout(self, sessionID):
         return
 
     def toAdmin(self, message, sessionID):
@@ -49,40 +49,42 @@ class Application(fix.Application):
         self.onMessage(message, sessionID)
         return
 
-   
-    def onMessage(self, message, sessionID):
-        """on Message"""
-        pass
 
-    def run(self):
-        """Run"""
-        while 1:
-            action = self.queryAction()
-            if action == '1':
-                self.queryEnterOrder()
-            elif action == '2':
-                self.queryCancelOrder()
-            elif action == '3':
-                self.queryReplaceOrder()
-            elif action == '4':
-                self.queryMarketDataRequest()
-            elif action == '5':
-                break
-            elif action == '6':
-                print( self.sessionID.getSenderCompID() )
+    def onMessage(self, message, sessionID):
+        print("Received message from", sessionID, message)
+
+        # Set the event to notify the caller that a response is received
+        self.response_event.set()
+
+    # def run(self):
+    #     """Run"""
+    #     while 1:
+    #         action = self.queryAction()
+    #         if action == '1':
+    #             self.queryEnterOrder()
+    #         elif action == '2':
+    #             self.queryCancelOrder()
+    #         elif action == '3':
+    #             self.queryReplaceOrder()
+    #         elif action == '4':
+    #             self.queryMarketDataRequest()
+    #         elif action == '5':
+    #             break
+    #         elif action == '6':
+    #             print( self.sessionID.getSenderCompID() )
 
     def queryAction(self):
         print("1) Enter Order\n2) Cancel Order\n3) Replace Order\n4) Market data test\n5) Quit")
         action  = input("Action: ")
         return action
-    
+
     def queryEnterOrder(self):
         version = self.queryVersion()
         print(version)
         while version == 0:
             print("Invalid input")
             version = self.queryVersion()
-        
+
         orderMsg = fix.Message()
 
         if version == 42:
@@ -94,13 +96,13 @@ class Application(fix.Application):
 
         if self.queryConfirm( "Send order (Y/N): " ):
             fix.Session.sendToTarget(order)
-    
+
     def queryCancelOrder(self):
         print("queryCancelOrder called")
-    
+
     def queryReplaceOrder(self):
         print("queryReplaceOrder called")
-    
+
     def queryMarketDataRequest(self):
         print("queryMarketDataRequest called")
 
@@ -113,7 +115,7 @@ class Application(fix.Application):
         }
 
         return swichter.get(value, 0)
-    
+
     def queryNewOrderSingle42(self):
         ordType = fix.OrdType()
 
@@ -171,11 +173,11 @@ class Application(fix.Application):
     def queryClOrdID(self):
         value = input("ClOrdID: ")
         return fix.ClOrdID(value)
-    
+
     def querySymbol(self):
         value = input("Symbol: ")
         return fix.Symbol( value )
-    
+
     def querySide(self):
         print("1) Buy\n2) Sell\n3) Sell Short\n4) Sell Short Exempt\n5) Cross\n6) Cross Short\n7) Cross Short Exempt")
         value = input("Side: ")
@@ -196,7 +198,7 @@ class Application(fix.Application):
             return fix.Side( 'A' )
         else:
             pass
-    
+
     def queryOrdType(self):
         print("1) Market\n2) Limit\n3) Stop\n4) Stop Limit")
         value = input("OrdType: ")
@@ -211,11 +213,11 @@ class Application(fix.Application):
             return fix.OrdType( fix.OrdType_STOP_LIMIT )
         else:
             pass
-    
+
     def queryOrderQty(self):
         value = input("OrderQty: ")
         return fix.OrderQty( int(value) )
-    
+
     def queryTimeInForce(self):
         print("1) Day\n2) IOC\n3) OPG\n4) GTC\n5) GTX")
         value = input("TimeInForce: ")
@@ -230,25 +232,25 @@ class Application(fix.Application):
             return fix.TimeInForce( fix.TimeInForce_GOOD_TILL_CANCEL )
         elif value == '5':
             return fix.TimeInForce( fix.TimeInForce_GOOD_TILL_CROSSING )
-    
+
     def queryPrice(self):
         value = input("Price: ")
         return fix.Price( value )
-    
+
     def queryStopPx(self):
         value = input("StopPx: ")
         return fix.StopPx( value )
-    
+
     def queryHeader(self, header):
         header.setField( self.querySenderCompID() )
         header.setField( self.queryTargetCompID() )
-    
+
     def querySenderCompID(self):
         return self.sessionID.getSenderCompID()
 
     def queryTargetCompID(self):
         return self.sessionID.getTargetCompID()
-    
+
     def queryConfirm(self, label):
         value = input(label)
 
@@ -259,11 +261,11 @@ class Application(fix.Application):
 
     def querySecurityExchange(self):
         securityExchanges = ['AGGREGATOR', 'ALGO', 'ASE', 'SX' ,
-                'B3', 'BitMEX', 'BrokerTec', 'CBOT', 'CFE', 'CME', 
-                'Coinbase', 'CoinFLEX', 'CurveGlobal', 'CZCE', 'DCE', 
-                'DGCX', 'EEX', 'Eurex', 'Euronext', 'Fenics', 'FEX', 
-                'HKEX', 'ICE', 'ICE_L', 'IDEM', 'INE', 'KCG', 'LME', 
-                'LSE', 'MEFF', 'MOEX', 'MX', 'MX', 'NDAQ_EU', 'NFI', 
+                'B3', 'BitMEX', 'BrokerTec', 'CBOT', 'CFE', 'CME',
+                'Coinbase', 'CoinFLEX', 'CurveGlobal', 'CZCE', 'DCE',
+                'DGCX', 'EEX', 'Eurex', 'Euronext', 'Fenics', 'FEX',
+                'HKEX', 'ICE', 'ICE_L', 'IDEM', 'INE', 'KCG', 'LME',
+                'LSE', 'MEFF', 'MOEX', 'MX', 'MX', 'NDAQ_EU', 'NFI',
                 'NFX', 'OSE', 'SGX', 'TFX', 'TOCOM']
         print('Possible values include: ')
         print(', '.join(securityExchanges))
@@ -271,7 +273,7 @@ class Application(fix.Application):
         while value not in securityExchanges:
             print('Invalid Value. Please try again')
             value = input('Option: ')
-        
+
         return fix.SecurityExchange(value)
 
     def queryAccount(self):
