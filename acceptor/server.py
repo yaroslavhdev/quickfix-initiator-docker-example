@@ -7,6 +7,7 @@ from application import Application
 def main(config_file):
     """Main"""
     try:
+        print('Init acceptor')
         settings = quickfix.SessionSettings(config_file)
         application = Application()
         storefactory = quickfix.PostgreSQLStoreFactory(settings)

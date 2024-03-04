@@ -25,7 +25,7 @@ python server.py server.cfg
 ```
 ```sh
 cd ./initiator
-python client.py client.cfg
+python main.py client.cfg
 ```
 
 ## Links

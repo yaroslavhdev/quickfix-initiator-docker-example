@@ -48,7 +48,6 @@ class Application(fix.Application):
 
     def toApp(self, message, sessionID):
         msg = message.toString().replace(__SOH__, "|")
-        print("")
         logfix.debug("toApp called S >> " + msg)
         return
 
@@ -61,6 +60,8 @@ class Application(fix.Application):
 
     def onMessage(self, message, sessionID):
         '''Processing application message'''
+        echo = fix.Message( message )
+        fix.Session.sendToTarget( echo, sessionID )
         pass
 
     def run(self):
